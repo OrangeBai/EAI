@@ -91,13 +91,13 @@ class BaseModel(pl.LightningModule):
         exp = getattr(self.logger, "experiment")
         torch.save(self.model, os.path.join(exp.dir, "model.pth"))
 
-    # def on_before_backward(self, loss) -> None:
-    #     if self.global_step < 500:
-    #         for param_group in self.optimizers().optimizer.param_groups:
-    #             param_group['lr'] = self.args.lr * 0.01
-    #     elif self.global_step == 500:
-    #         for idx, param_group in enumerate(self.optimizers().optimizer.param_groups):
-    #             param_group['lr'] = self.lr_schedulers()._get_closed_form_lr()[idx]
-    #     else:
-    #         return
+    def on_before_backward(self, loss) -> None:
+        if self.global_step < 500:
+            for param_group in self.optimizers().optimizer.param_groups:
+                param_group['lr'] = self.args.lr * 0.01
+        elif self.global_step == 500:
+            for idx, param_group in enumerate(self.optimizers().optimizer.param_groups):
+                param_group['lr'] = self.lr_schedulers()._get_closed_form_lr()[idx]
+        else:
+            return
 # from torchvision.models.resnet import

@@ -25,7 +25,7 @@ class TrainParser:
         # scheduler and optimizer
         self.parser.add_argument(
             "--lr_scheduler",
-            default="cyclic",
+            default="milestones",
             choices=["milestones", "exp", "cyclic", "static"],
         )
         self.parser.add_argument("--optimizer", default="SGD", choices=["SGD", "Adam"])

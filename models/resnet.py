@@ -30,8 +30,12 @@ class ResNet(nn.Module):
         self.groups = groups
         self.base_width = width_per_group
 
-        self.conv1 = ConvBlock(3, self.in_channels, kernel_size=7, stride=2, padding=3, bn=bn, act=act)
-        self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        if dataset.lower() == "imagenet":
+            self.conv1 = ConvBlock(3, self.in_channels, kernel_size=7, stride=2, padding=3, bn=bn, act=act)
+            self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        else:
+            self.conv1 = ConvBlock(3, self.in_channels, kernel_size=3, stride=2, padding=1, bn=bn, act=act)
+            self.maxpool = nn.Identity()
         self.layer1 = self._make_layer(block, layers[0], 64, act, bn)
         self.layer2 = self._make_layer(block, layers[1], 128, act, bn, stride=2)
         self.layer3 = self._make_layer(block, layers[2], 256, act, bn, stride=2)
