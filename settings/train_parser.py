@@ -12,7 +12,7 @@ class TrainParser:
         self.parser.add_argument("--project", type=str, required=True)
         self.parser.add_argument("--name", type=str, required=True)
 
-        self.parser.add_argument("--batch_size", type=int, default=128)
+        self.parser.add_argument("--batch_size", type=int, default=512)
         self.parser.add_argument("--bn", type=bool, default=True)
         self.parser.add_argument("--no_bn", dest="bn", action="store_false")
         self.parser.add_argument("--init", type=bool, default=True)
@@ -21,7 +21,7 @@ class TrainParser:
 
         # step-wise or epoch-wise
         self.parser.add_argument("--num_workers", default=4, type=int)
-        self.parser.add_argument("--num_epoch", default=120, type=int)
+        self.parser.add_argument("--num_epoch", default=200, type=int)
         # scheduler and optimizer
         self.parser.add_argument(
             "--lr_scheduler",

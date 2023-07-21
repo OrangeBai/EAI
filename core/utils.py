@@ -46,7 +46,7 @@ def init_scheduler(lr, lr_scheduler, num_step, optimizer):
             the learning rate remains unchanged during the training
     """
     if lr_scheduler == "milestones":
-        milestones = [milestone * num_step for milestone in [0.4, 0.7]]
+        milestones = [milestone * num_step for milestone in [0.5, 0.75]]
         lr_scheduler = MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
     elif lr_scheduler == "exp":
         gamma = math.pow(1 / 100, 1 / num_step)
