@@ -21,14 +21,15 @@ class TrainParser:
 
         # step-wise or epoch-wise
         self.parser.add_argument("--num_workers", default=4, type=int)
-        self.parser.add_argument("--num_epoch", default=180, type=int)
+        self.parser.add_argument("--num_epoch", default=160, type=int)
         # scheduler and optimizer
         self.parser.add_argument(
             "--lr_scheduler",
-            default="cyclic",
+            default="milestones",
             choices=["milestones", "exp", "cyclic", "static"],
         )
         self.parser.add_argument("--optimizer", default="SGD", choices=["SGD", "Adam"])
+        self.parser.add_argument("--momentum", default=0.9, type=float)
         self.parser.add_argument("--lr", default=0.1, type=float)
         # training settings
         self.parser.add_argument("--npbar", default=True, action="store_false")

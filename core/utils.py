@@ -75,7 +75,7 @@ def init_scheduler(lr, lr_scheduler, num_step, optimizer):
     return lr_scheduler
 
 
-def init_optimizer(model, optimizer, lr):
+def init_optimizer(model, optimizer, lr, args):
     """
     Initialize optimizer:
         SGD: Implements stochastic gradient descent (optionally with momentum).
@@ -88,7 +88,7 @@ def init_optimizer(model, optimizer, lr):
             args.weight_decay: weight decay (L2 penalty) (default: 5e-4)
     """
     if optimizer == "SGD":
-        optimizer = torch.optim.SGD(model.parameters(), lr=lr + 1e-8)
+        optimizer = torch.optim.SGD(model.parameters(), lr=lr + 1e-8, momentum=args.momentum)
     elif optimizer == "Adam":
         optimizer = torch.optim.Adam(model.parameters(), lr=lr + 1e-8, weight_decay=1e-4)
     else:
