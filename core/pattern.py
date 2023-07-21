@@ -3,7 +3,7 @@ from random import random
 import numpy as np
 import torch
 
-from models.blocks import LinearBlock, ConvBlock
+from models.blocks import LinearBlock, ConvBlock, BasicBlock, Bottleneck
 
 
 class BaseHook:
@@ -19,6 +19,7 @@ class BaseHook:
         self.model = model
         self.handles = []  # handles for registered hooks
         self.features = {}  # recorder for computed attributes
+        self.counter = {}
 
     def set_up(self):
         """
@@ -33,13 +34,16 @@ class BaseHook:
         if isinstance(block, (LinearBlock, ConvBlock)):
             self.features[block_name]['act'] = None
             self.handles += [block.Act.register_forward_hook(self.hook(block_name, 'act'))]
+        if isinstance(block, (BasicBlock, Bottleneck)):
+            self.features[block_name]['act'] = None
+            self.handles += [block.act.register_forward_hook(self.hook(block_name, 'act'))]
 
     def remove(self):
         [handle.remove() for handle in self.handles]
         self.features = {}
         return
 
-    def hook(self, block_name, module_name):
+    def hook(self, block_name, module_name, counter):
         def fn(layer, input_var, output_var):
             pass
 
@@ -51,8 +55,17 @@ class WeightHook(BaseHook):
         super().__init__(model)
 
     def hook(self, block_name, module_name):
+
         def fn(layer, input_var, output_var):
-            pass
+            if self.features[block_name][module_name] is None:
+                self.features[block_name][module_name] = [input_var[0].detach().cpu().numpy()]
+            else:
+                self.features[block_name][module_name] += [input_var[0].detach().cpu().numpy()]
+
+        return fn
+
+    def retrieve(self):
+        return self.features
 
 
 class EntropyHook(BaseHook):

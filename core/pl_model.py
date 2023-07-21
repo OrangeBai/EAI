@@ -5,7 +5,7 @@ import pytorch_lightning as pl
 import torch
 
 from core.dataloader import set_dataloader
-from core.pattern import BaseHook
+from core.pattern import WeightHook
 from core.utils import accuracy, init_optimizer, init_scheduler, normal_init, apply_init
 from models import build_model
 from models.blocks import ConvBlock, LinearBlock, BasicBlock, Bottleneck
@@ -25,7 +25,7 @@ class BaseModel(pl.LightningModule):
         self.train_loader, self.val_loader = set_dataloader(
             args.dataset, batch_size=args.batch_size, num_workers=args.num_workers
         )
-        self.hook = BaseHook(self.model)
+        self.hook = WeightHook(self)
 
     def _init_weight(self):
         if self.args.act.lower() not in ["sigmoid", "tanh", "relu", "selu", "leaky_relu"]:
@@ -41,9 +41,12 @@ class BaseModel(pl.LightningModule):
     def val_dataloader(self):
         return self.val_loader
 
-    def on_train_epoch_start(self) -> None:
-        # self.hook.set_up()
-        pass
+    # def on_train_epoch_start(self) -> None:
+    #     self.hook.set_up()
+    #     # pass
+
+    # def on_train_epoch_end(self) -> None:
+    #     features = self.hook.retrieve()
 
     def configure_optimizers(self):
         num_step = self.trainer.max_epochs * len(self.train_loader) - self.global_step
@@ -88,13 +91,13 @@ class BaseModel(pl.LightningModule):
         exp = getattr(self.logger, "experiment")
         torch.save(self.model, os.path.join(exp.dir, "model.pth"))
 
-    def on_before_backward(self, loss) -> None:
-        if self.global_step < 500:
-            for param_group in self.optimizers().optimizer.param_groups:
-                param_group['lr'] = self.args.lr * 0.01
-        elif self.global_step == 500:
-            for idx, param_group in enumerate(self.optimizers().optimizer.param_groups):
-                param_group['lr'] = self.lr_schedulers()._get_closed_form_lr()[idx]
-        else:
-            return
+    # def on_before_backward(self, loss) -> None:
+    #     if self.global_step < 500:
+    #         for param_group in self.optimizers().optimizer.param_groups:
+    #             param_group['lr'] = self.args.lr * 0.01
+    #     elif self.global_step == 500:
+    #         for idx, param_group in enumerate(self.optimizers().optimizer.param_groups):
+    #             param_group['lr'] = self.lr_schedulers()._get_closed_form_lr()[idx]
+    #     else:
+    #         return
 # from torchvision.models.resnet import

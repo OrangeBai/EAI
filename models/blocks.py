@@ -138,6 +138,8 @@ class BasicBlock(nn.Module):
         else:
             self.downsample = nn.Identity()
 
+        self.act = set_activation(act)
+
     def forward(self, x: Tensor) -> Tensor:
         identity = x
 
@@ -152,7 +154,7 @@ class BasicBlock(nn.Module):
             identity = self.downsample(x)
 
         out += identity
-        out = self.act1(out)
+        out = self.act(out)
 
         return out
 

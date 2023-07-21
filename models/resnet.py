@@ -4,7 +4,7 @@ import torch.nn as nn
 from torch import Tensor
 
 from core.dataloader import set_mean_std
-from models.blocks import BasicBlock, Bottleneck, ConvBlock, NormalizeLayer
+from models.blocks import BasicBlock, Bottleneck, ConvBlock, NormalizeLayer, LinearBlock
 
 
 class ResNet(nn.Module):
@@ -89,8 +89,7 @@ class ResNet(nn.Module):
     def forward(self, x: Tensor) -> Tensor:
         return self._forward_impl(x)
 
-    @staticmethod
-    def _make_classifier(dataset, block):
+    def _make_classifier(self, dataset, block):
         if dataset.lower() == "cifar10":
             output_size, num_cls = 1, 10
         elif dataset.lower() == "cifar100":
@@ -101,7 +100,7 @@ class ResNet(nn.Module):
             raise NameError()
         avgpool = nn.AdaptiveAvgPool2d((1, 1))
         flatten = nn.Flatten()
-        fc = nn.Linear(512 * block.expansion, num_cls)
+        fc = LinearBlock(512 * block.expansion, num_cls, bn=self.bn, act=None)
         return nn.Sequential(avgpool, flatten, fc)
 
 
