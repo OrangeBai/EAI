@@ -57,7 +57,7 @@ def init_scheduler(lr, lr_scheduler, num_step, optimizer):
         down = int(num_step * 2 / 3 / num_circles)
         lr_scheduler = CyclicLR(
             optimizer,
-            base_lr=0.001,
+            base_lr=0.0001,
             max_lr=lr,
             step_size_up=up,
             step_size_down=down,
