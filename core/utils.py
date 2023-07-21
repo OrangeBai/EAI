@@ -88,7 +88,7 @@ def init_optimizer(model, optimizer, lr, args):
             args.weight_decay: weight decay (L2 penalty) (default: 5e-4)
     """
     if optimizer == "SGD":
-        optimizer = torch.optim.SGD(model.parameters(), lr=lr + 1e-8, momentum=args.momentum)
+        optimizer = torch.optim.SGD(model.parameters(), lr=lr + 1e-8, momentum=args.momentum, weight_decay=1e-4)
     elif optimizer == "Adam":
         optimizer = torch.optim.Adam(model.parameters(), lr=lr + 1e-8, weight_decay=1e-4)
     else:
@@ -102,9 +102,6 @@ def apply_init(m, act):
         nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity=act)
     elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm)):
         nn.init.constant_(m.weight, 1)
-        nn.init.constant_(m.bias, 0)
-    elif isinstance(m, nn.Linear):
-        nn.init.xavier_normal_(m.weight)
         nn.init.constant_(m.bias, 0)
 
 
