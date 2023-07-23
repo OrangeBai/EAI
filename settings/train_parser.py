@@ -12,7 +12,7 @@ class TrainParser:
         self.parser.add_argument("--project", type=str, required=True)
         self.parser.add_argument("--name", type=str, required=True)
 
-        self.parser.add_argument("--batch_size", type=int, default=128)
+        self.parser.add_argument("--batch_size", type=int, default=256)
         self.parser.add_argument("--bn", type=bool, default=True)
         self.parser.add_argument("--no_bn", dest="bn", action="store_false")
         self.parser.add_argument("--init", type=bool, default=True)
