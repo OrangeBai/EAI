@@ -30,42 +30,82 @@ class BaseHook:
         [self.add_block_hook(block_name, block) for block_name, block in self.model.valid_blocks()]
 
     def add_block_hook(self, block_name, block):
-        self.features[block_name] = {}
-        if isinstance(block, (LinearBlock, ConvBlock)):
-            self.features[block_name]['act'] = None
-            self.handles += [block.Act.register_forward_hook(self.hook(block_name, 'act'))]
-        if isinstance(block, (BasicBlock, Bottleneck)):
-            self.features[block_name]['act'] = None
-            self.handles += [block.act.register_forward_hook(self.hook(block_name, 'act'))]
+        pass
 
     def remove(self):
         [handle.remove() for handle in self.handles]
         self.features = {}
         return
 
-    def hook(self, block_name, module_name, counter):
+    def hook(self, block_name, module_name):
         def fn(layer, input_var, output_var):
             pass
 
         return fn
 
 
-class WeightHook(BaseHook):
-    def __init__(self, model):
-        super().__init__(model)
+class BaseActHook(BaseHook):
+    def add_block_hook(self, block_name, block):
+        self.features[block_name] = {}
+        if isinstance(block, (LinearBlock, ConvBlock)):
+            self.features[block_name]['act'] = None
+            self.handles += [block.Act.register_forward_hook(self.hook(block_name, 'act'))]
+            self.counter[block_name] = 0
+        if isinstance(block, (BasicBlock, Bottleneck)):
+            self.features[block_name]['act'] = None
+            self.handles += [block.act.register_forward_hook(self.hook(block_name, 'act'))]
+            self.counter[block_name] = 0
 
+
+class BaseWeightHook(BaseHook):
+    def add_block_hook(self, block_name, block):
+        self.features[block_name] = {}
+        if isinstance(block, (LinearBlock, ConvBlock)):
+            self.features[block_name]['lt'] = None
+            self.handles += [block.LT.register_full_backward_hook(self.hook(block_name, 'lt'))]
+            self.counter[block_name] = 0
+        if isinstance(block, (BasicBlock, Bottleneck)):
+            self.features[block_name]['conv2'] = None
+            self.handles += [block.conv2.register_full_backward_hook(self.hook(block_name, 'conv2'))]
+            self.counter[block_name] = 0
+
+
+class GradientHook(BaseWeightHook):
     def hook(self, block_name, module_name):
-
         def fn(layer, input_var, output_var):
+            self.counter[block_name] += 1
+            if self.counter[block_name] % 10 == 0:
+                return
             if self.features[block_name][module_name] is None:
-                self.features[block_name][module_name] = [input_var[0].detach().cpu().numpy()]
+                self.features[block_name][module_name] = output_var[0].detach().cpu().numpy()
             else:
-                self.features[block_name][module_name] += [input_var[0].detach().cpu().numpy()]
+                self.features[block_name][module_name] += output_var[0].detach().cpu().numpy()
 
         return fn
 
     def retrieve(self):
         return self.features
+
+
+class PreActHook(BaseActHook):
+    def hook(self, block_name, module_name):
+        def fn(layer, input_var, output_var):
+            self.counter[block_name] += 1
+            if self.counter[block_name] % 10 == 0:
+                return
+            if self.features[block_name][module_name] is None:
+                self.features[block_name][module_name] = input_var[0].detach().cpu().numpy()
+            else:
+                self.features[block_name][module_name] += input_var[0].detach().cpu().numpy()
+
+        return fn
+
+    def retrieve(self):
+        global_pre_act = []
+        for block_name, block in self.features.items():
+            for layer_name, layer in block.items():
+                global_pre_act.append(layer)
+        return global_pre_act
 
 
 class EntropyHook(BaseHook):

@@ -5,7 +5,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 
 from config import *
-from core.pl_model import BaseModel
+from core.pl_model import BaseModel, ForwardRecorderModel
 from settings.train_parser import TrainParser
 
 if __name__ == "__main__":
@@ -14,8 +14,12 @@ if __name__ == "__main__":
     os.makedirs(model_dir, exist_ok=True)
 
     logtool = WandbLogger(name=args.name, save_dir=model_dir, project=args.project, config=args)
-
-    model = BaseModel(args)
+    if args.mode == "std":
+        model = BaseModel(args)
+    elif args.mode == "preact":
+        model = ForwardRecorderModel(args)
+    else:
+        raise NameError("aaa")
 
     callbacks = [
         ModelCheckpoint(
@@ -41,4 +45,4 @@ if __name__ == "__main__":
         inference_mode=False,
     )
     trainer.fit(model)
-    # model.save_model()
+    model.save_model()

@@ -7,6 +7,7 @@ class TrainParser:
         self.parser = argparse.ArgumentParser()
         self.args = sys.argv[1:]
 
+        self.parser.add_argument("--mode", type=str, choices=["std", "preact", "backward"], default='std')
         self.parser.add_argument("--dataset", type=str, required=True)
         self.parser.add_argument("--net", type=str, required=True)
         self.parser.add_argument("--project", type=str, required=True)

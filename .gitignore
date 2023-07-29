@@ -4,5 +4,5 @@
 /.idea/inspectionProfiles/Project_Default.xml
 /resnet18-f37072fd.pth
 /resnet50-0676ba61.pth
-/notebooks/test.ipynb
+/exps/test.ipynb
 /.idea/vcs.xml
